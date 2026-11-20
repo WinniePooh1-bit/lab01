@@ -118,3 +118,8 @@ lab01/
 ```
 
 Repository: https://github.com/WinniePooh1-bit/lab01
+
+
+## Дараагийн туршилтын update — 2026-11-20
+
+Оюутан засварын дараа тестүүд хэвийн болсон гэж мэдээлсэн. Ирүүлсэн Chrome screenshot-д `saucedemo.com/inventory.html` хуудас, `Products` гарчиг болон бүтээгдэхүүний картууд харагдаж байна. Энэ нь амжилттай login-ийн дараах UI нээгдсэнийг харуулна. Харин screenshot-д HTML report-ийн Passed/Failed summary байхгүй тул шинэ run-ийн яг тоон үр дүнг энд зохиомлоор бичээгүй. Өмнөх 1 Passed / 2 Failed гэдэг нь эхний run-ийн үр дүн хэвээр үлдэнэ.
