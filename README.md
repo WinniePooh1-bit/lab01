@@ -1,8 +1,6 @@
 # Лаборатори №1 — UI автомат тест (Playwright)
 
 **Хичээл:** F.CSA313 — Программ хангамжийн чанарын баталгаа ба тест (2026)  
-**Оюутан:** М.Наранбат  
-**Оюутны код:** B242270801  
 **Тестлэх веб:** https://www.saucedemo.com/
 
 ## Зорилго
@@ -26,6 +24,12 @@ npx playwright install chromium
 npx playwright test
 ```
 
+Хэрэв Ubuntu/WSL дээр browser-ийн system dependency дутуу байвал:
+
+```bash
+npx playwright install --with-deps chromium
+```
+
 Тестийг browser цонхтой ажиллуулах:
 
 ```bash
@@ -38,7 +42,7 @@ HTML тайлан үүсгэж нээх:
 npx playwright show-report
 ```
 
-Trace бичлэгтэй ажиллуулах:
+Trace бичлэгтэй тест ажиллуулах:
 
 ```bash
 npx playwright test --trace on
@@ -84,9 +88,9 @@ Selenium болон Playwright хоёулаа Apache 2.0 лицензтэй, н�
 1. Терминалын `node --version`, `npm --version` болон `npx playwright test` гаралтын screenshot-ийг `evidence/` хавтаст хадгал.
 2. `npx playwright show-report` командаар HTML тайлангаа шалга.
 3. Trace Viewer-ийг нээж, тестийн алхам болон DOM snapshot-ийг шалгасан screenshot-ийг хадгал.
-4. Генерацлагдсан `playwright-report/` хавтсыг шаардлагатай бол repository-д commit хий.
+4. `playwright-report/` хавтсыг шаардлагатай бол repository-д commit хий.
 
-**Анхаарах нь:** repository-д бодит бус screenshot, зохиомол test result эсвэл өөр компьютерийн version output оруулаагүй. Локал ажиллуулалтын үр дүнг зөвхөн өөрийн компьютер дээр ажиллуулсны дараа нэмнэ.
+**Шалгалтын төлөв:** код болон тохиргоог repository-д бэлдсэн. Энэ ажлын орчноос SauceDemo руу хандах сүлжээ хаалттай тул бодит browser test run, Codegen бичлэг, Trace Viewer-ийн ажиллагааг энд баталгаажуулаагүй. Иймээс хуурамч screenshot, test result эсвэл өөр компьютерийн version output хавсаргаагүй. Локал үр дүнг зөвхөн өөрийн компьютерт ажиллуулсны дараа нэмнэ.
 
 ## Файлын бүтэц
 
