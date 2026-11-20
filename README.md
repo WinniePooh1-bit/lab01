@@ -5,18 +5,18 @@
 
 ## Зорилго
 
-Playwright Test болон TypeScript ашиглан веб интерфэйсийн үндсэн үйлдлүүдийг автоматжуулна. Төслийн хүрээнд амжилттай нэвтрэх, буруу нууц үгээр нэвтрэх оролдлого, нэвтэрсний дараа барааг сагсанд нэмэх гэсэн гурван тестийг хэрэгжүүлсэн.
+Playwright Test болон TypeScript ашиглан SauceDemo вебийн үндсэн үйлдлүүдийг автоматжуулна. Энэ төсөлд амжилттай нэвтрэх, буруу нууц үгээр нэвтрэх, нэвтэрсний дараа барааг сагсанд нэмэх гэсэн гурван тест орсон.
 
-## Төслийг өөрийн компьютерт ажиллуулах
+## Орчин бэлдэх ба тест ажиллуулах
 
-Node.js болон npm суусан эсэхийг шалгана:
+Node.js болон npm хувилбарыг шалгана:
 
 ```bash
 node --version
 npm --version
 ```
 
-Төслийн хавтас дотор дараах командыг ажиллуулна:
+Төслийн хавтас дотор:
 
 ```bash
 npm install
@@ -24,7 +24,7 @@ npx playwright install chromium
 npx playwright test
 ```
 
-Хэрэв Ubuntu/WSL дээр browser-ийн system dependency дутуу байвал:
+Ubuntu/WSL дээр browser-ийн системийн хамаарал дутуу бол:
 
 ```bash
 npx playwright install --with-deps chromium
@@ -36,7 +36,7 @@ npx playwright install --with-deps chromium
 npx playwright test --headed
 ```
 
-HTML тайлан үүсгэж нээх:
+HTML тайлан нээх:
 
 ```bash
 npx playwright show-report
@@ -48,7 +48,7 @@ Trace бичлэгтэй тест ажиллуулах:
 npx playwright test --trace on
 ```
 
-Тестийн ажиллуулалтаас үүссэн `test-results` доторх `trace.zip` файлын замыг ашиглан Trace Viewer нээнэ:
+Тестийн дараа `test-results` хавтаснаас `trace.zip` файлын замыг олж:
 
 ```bash
 npx playwright show-trace "test-results/<test-folder>/trace.zip"
@@ -60,37 +60,43 @@ Codegen турших:
 npx playwright codegen https://www.saucedemo.com/
 ```
 
-Codegen browser дээр хийсэн үйлдлийг код болгон харуулна. Гарсан кодыг `tests/saucedemo.spec.ts` файлтай харьцуулж, бодит ажиглалтыг `notes/codegen-comparison.md` файлд тэмдэглэнэ.
+Codegen-оор browser дээр login болон cart үйлдэл хийгээд гарсан кодыг `tests/saucedemo.spec.ts` файлтай харьцуулж, бодит ажиглалтыг `notes/codegen-comparison.md` файлд тэмдэглэнэ.
 
-## Хэрэгжүүлсэн тестүүд
+## Тестийн хамрах хүрээ
 
-| № | Тестийн нэр | Шалгах зүйл |
+| № | Тест | Шалгалт |
 |---|---|---|
-| 1 | Зөв мэдээллээр амжилттай нэвтрэх | Нэвтэрсний дараа Products хэсэг харагдах, URL inventory хуудас болох |
-| 2 | Буруу нууц үгээр нэвтрэх | Алдааны мэдэгдэл харагдах, хэрэглэгч нэвтрээгүй хэвээр байх |
-| 3 | Нэвтэрсний дараа барааг сагсанд нэмэх | Sauce Labs Backpack сагсанд нэмэгдэж, сагсны тоо 1 болох, бараа cart хуудсанд харагдах |
+| 1 | Зөв мэдээллээр нэвтрэх | URL inventory хуудас болох, Products гарчиг болон 6 бараа харагдах |
+| 2 | Буруу нууц үг | Алдааны мэдэгдэл харагдах, inventory жагсаалт үүсэхгүй байх |
+| 3 | Бараа сагсанд нэмэх | Sauce Labs Backpack сонгогдох, cart badge 1 болох, cart хуудсанд бараа харагдах |
 
-Тест бүр Playwright-ийн `Page` fixture-ээр тусдаа browser context ашигладаг тул нэг тестийн нэвтрэлтийн төлөв нөгөөд нөлөөлөхгүй. `afterEach` hook нь амжилттай нэвтэрсэн тестийн төгсгөлд цэсийг нээж Logout хийдэг; нэвтрээгүй тестэд гарах үйлдэл хийх шаардлагагүй.
+Тестүүд тусдаа Playwright Page fixture ашигладаг. `afterEach` hook нь амжилттай нэвтэрсэн тохиолдолд SauceDemo цэсээр Logout хийж тестийн session-ийг цэвэрлэнэ.
 
-## Locator сонголт ба XPath
+## Locator ба XPath
 
-Тестүүдэд `getByRole`, `getByPlaceholder`, `getByText`, `getByTestId` locator ашигласан. Эдгээр нь хэрэглэгчид харагдах role, placeholder, текст болон зориулалтын test attribute-д тулгуурладаг. Ингэснээр DOM-ийн дотоод бүтэц, элементийн байрлалд хэт хамааралтай XPath selector-оос зайлсхийж, тестийг уншихад ойлгомжтой, интерфэйсийн зарим өөрчлөлтөд илүү тэсвэртэй болгоно. XPath-ийг бүрэн хориглохгүй; semantic locator тохирохгүй үед л шаардлагатай эсэхийг нягтална.
+Төслөөр `getByRole`, `getByPlaceholder`, `getByText`, `getByTestId` зэрэг semantic locator-уудыг турших боломжтой. Тестийн тогтвортой байдлыг хангахын тулд SauceDemo-ийн `data-test` атрибут болон бүтээгдэхүүний card-ийн бүтэцтэй locator-уудыг ашигласан. XPath нь DOM-ийн байрлал, бүтцэд хэт хамааралтай болохоор шаардлагагүй үед ашиглаагүй.
 
-## Playwright ба Selenium — харьцуулалтын ажиглалт
+## Playwright ба Selenium-ийн харьцуулалт
 
-Selenium болон Playwright хоёулаа Apache 2.0 лицензтэй, нээлттэй эхийн хэрэгсэл. Playwright нь элемент үйлдэл хийхэд бэлэн болохыг auto-wait механизмаар автоматаар хүлээдэг бол Selenium-д ихэнх тохиолдолд explicit wait-ийг өөрөө тохируулах шаардлагатай. Playwright нь Chromium, Firefox, WebKit browser-уудыг нэг API-аар удирдаж, browser binary-г командаар суулгадаг. Selenium нь Java, Python, C#, JavaScript зэрэг олон хэл болон browser driver-ийн өргөн экосистемтэй. Playwright-ийн Codegen нь browser дээр хийсэн үйлдлийг код болгон гаргаж өгдөг. Trace Viewer нь алхам, DOM snapshot, screenshot болон алдааг эргэн шалгахад тусалдаг. Энэ лабораторийн тестийн жишээнд Playwright-ийн auto-wait болон role/test-id locator-ууд нь тестийн кодыг товч, ойлгомжтой байлгаж байна.
+Selenium болон Playwright хоёулаа Apache 2.0 лицензтэй нээлттэй эхийн хэрэгсэл. Playwright нь auto-wait механизмтай тул элемент үйлдэл хийхэд бэлэн болохыг автоматаар хүлээдэг. Selenium-д explicit wait-ийг тусад нь тохируулах тохиолдол олон. Playwright нь Chromium, Firefox, WebKit-ийг нэг API-аар удирддаг. Selenium нь Java, Python, C#, JavaScript зэрэг олон хэлний өргөн экосистемтэй. Playwright-ийн Codegen нь browser дээр хийсэн үйлдлийг код болгон үүсгэдэг. Trace Viewer нь алхам, DOM snapshot, screenshot болон алдааг шалгахад тустай. Энэ лабораторид auto-wait болон locator-ууд тестийн кодыг ойлгомжтой бичихэд тусалж байна.
 
-## Орон нутгийн шалгалт ба нотолгоо
+## 2026-11-20 локал туршилтын тэмдэглэл
 
-Энэ repository-д GitHub Actions workflow ашиглаагүй. Багшийн шаардлагын дагуу тестийг оюутны өөрийн компьютерт суулгасан Node.js болон Playwright орчинд ажиллуулж, тухайн машины бодит гаралтыг нотолгоо болгоно.
+Оюутны ирүүлсэн Playwright HTML report-ийн screenshot-д 3 тестээс 1 нь Passed, 2 нь Failed, Flaky болон Skipped нь 0 гэж харагдсан. Буруу нууц үгийн тест 2.0 секундэд Passed болсон. Амжилттай нэвтрэх тест 35.1 секунд, бараа сагслах тест 35.9 секундэд Failed болсон. Screenshot нь зөвхөн summary хэсгийг харуулж байгаа тул яг аль assertion эсвэл locator алдаа өгснийг батлах боломжгүй; тухайн хоёр тестийн Trace болон алдааны дэлгэрэнгүйг нээж шалгах шаардлагатай.
 
-Өөрийн компьютер дээр тест амжилттай ажилласны дараа:
-1. Терминалын `node --version`, `npm --version` болон `npx playwright test` гаралтын screenshot-ийг `evidence/` хавтаст хадгал.
-2. `npx playwright show-report` командаар HTML тайлангаа шалга.
-3. Trace Viewer-ийг нээж, тестийн алхам болон DOM snapshot-ийг шалгасан screenshot-ийг хадгал.
-4. `playwright-report/` хавтсыг шаардлагатай бол repository-д commit хий.
+Энэ хувилбарт login-ийн баталгаажуулалтыг inventory жагсаалт ба login error-ийн аль нэг гарахыг шалгахаар өөрчилж, алдааны мессежийг шууд харуулдаг болгосон. Cart-ийн сонголтыг бүтээгдэхүүний card-аар хязгаарлаж, Logout cleanup-д SauceDemo-ийн menu/logout selector ашигласан. **Эдгээр засварыг GitHub-д хадгалсан боловч шинэ хувилбарын тестийг өөрийн компьютерт дахин ажиллуулж баталгаажуулах хүртэл Passed гэж тэмдэглэхгүй.**
 
-**Шалгалтын төлөв:** код болон тохиргоог repository-д бэлдсэн. Энэ ажлын орчноос SauceDemo руу хандах сүлжээ хаалттай тул бодит browser test run, Codegen бичлэг, Trace Viewer-ийн ажиллагааг энд баталгаажуулаагүй. Иймээс хуурамч screenshot, test result эсвэл өөр компьютерийн version output хавсаргаагүй. Локал үр дүнг зөвхөн өөрийн компьютерт ажиллуулсны дараа нэмнэ.
+## Нотолгоо
+
+Өөрийн компьютер дээр дараах бодит нотолгоог `evidence/` хавтаст нэмнэ:
+
+- Node.js болон npm хувилбарын terminal screenshot.
+- `npx playwright test` командын бүрэн гаралт.
+- Амжилттай ажилласан HTML report-ийн screenshot.
+- Trace Viewer-ийн screenshot.
+- Codegen ашигласан screenshot болон ажиглалтыг `notes/codegen-comparison.md` файлд тэмдэглэсэн байх.
+
+`playwright-report/` нь локал ажиллуулалтаар автоматаар үүснэ. `test-results/` болон `node_modules/`-ийг Git-д оруулахгүй.
 
 ## Файлын бүтэц
 
@@ -105,10 +111,10 @@ lab01/
 ├── notes/
 │   ├── ai-review-template.md
 │   └── codegen-comparison.md
-└── evidence/
-    └── README.md
+├── evidence/
+│   └── README.md
+└── reports/
+    └── local-run-2026-11-20.md
 ```
-
-## GitHub
 
 Repository: https://github.com/WinniePooh1-bit/lab01

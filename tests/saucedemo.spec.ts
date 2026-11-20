@@ -1,34 +1,57 @@
 import { test, expect, type Page } from '@playwright/test';
 
+const SITE_URL = 'https://www.saucedemo.com/';
 const USERNAME = 'standard_user';
 const PASSWORD = 'secret_sauce';
 
 /**
- * SauceDemo-д зөв хэрэглэгчийн мэдээллээр нэвтэрнэ.
- * Тест бүр өөрийн Page fixture-тэй тул browser context тусгаарлагдана.
+ * Нэвтрэх үйлдлийг нэг газар төвлөрүүлсэн helper.
+ * Амжилттай нэвтэрсэн эсэхийг зөвхөн URL-аар бус inventory жагсаалтаар давхар шалгана.
+ * Хэрэв сайт алдааны мессеж харуулбал timeout хүлээлгүй тухайн мессежийг ил гаргана.
  */
 async function login(page: Page): Promise<void> {
-  await page.goto('/');
-  await page.getByPlaceholder('Username').fill(USERNAME);
-  await page.getByPlaceholder('Password').fill(PASSWORD);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.goto(SITE_URL, { waitUntil: 'domcontentloaded' });
 
-  // Нэвтрэлт амжилттай бол inventory хуудас руу шилжсэн байна.
-  await expect(page).toHaveURL(/inventory\.html$/);
+  await page.locator('[data-test="username"]').fill(USERNAME);
+  await page.locator('[data-test="password"]').fill(PASSWORD);
+  await page.locator('[data-test="login-button"]').click();
+
+  const inventory = page.locator('.inventory_list');
+  const loginError = page.locator('[data-test="error"]');
+
+  // Inventory жагсаалт эсвэл login error-ийн аль нэг нь гарч ирэхийг хүлээнэ.
+  await expect(inventory.or(loginError)).toBeVisible({ timeout: 20_000 });
+
+  if (await loginError.isVisible()) {
+    const message = (await loginError.innerText()).trim();
+    throw new Error(`SauceDemo нэвтрэлтийг татгалзлаа: ${message}`);
+  }
+
+  await expect(page).toHaveURL(/\/inventory\.html$/);
+  await expect(inventory).toBeVisible();
 }
 
 /**
- * Амжилттай нэвтэрсэн тестийн дараа сессийг цэвэрлэнэ.
- * Нэвтрэлт амжилтгүй болсон үед меню байхгүй тул logout-г алгасна.
+ * Амжилттай нэвтэрсэн үед SauceDemo-ийн цэсээр Logout хийнэ.
+ * Нэвтрээгүй сөрөг тестэд меню байхгүй тул cleanup-г алгасна.
  */
 async function logoutIfLoggedIn(page: Page): Promise<void> {
-  const menuButton = page.getByRole('button', { name: 'Open Menu' });
+  const menuButton = page.locator('#react-burger-menu-btn');
 
-  if (await menuButton.isVisible().catch(() => false)) {
-    await menuButton.click();
-    await page.getByRole('link', { name: 'Logout' }).click();
-    await expect(page).toHaveURL('/');
+  if (!(await menuButton.isVisible().catch(() => false))) {
+    return;
   }
+
+  await menuButton.click();
+
+  const logoutLink = page.locator('#logout_sidebar_link');
+  await expect(logoutLink).toBeVisible({ timeout: 5_000 });
+  await logoutLink.click();
+
+  // Logout хийсний дараа login form буцаж харагдах ёстой.
+  await expect(page.locator('[data-test="login-button"]')).toBeVisible({
+    timeout: 5_000
+  });
 }
 
 test.afterEach(async ({ page }) => {
@@ -38,40 +61,49 @@ test.afterEach(async ({ page }) => {
 test('зөв мэдээллээр амжилттай нэвтрэх', async ({ page }) => {
   await login(page);
 
-  // Бүтээгдэхүүний жагсаалт нээгдсэнийг URL болон heading-ээр батална.
-  await expect(page.getByText('Products', { exact: true })).toBeVisible();
+  // Products гарчиг болон бүтээгдэхүүний жагсаалтыг шалгана.
+  await expect(page.locator('.title')).toHaveText('Products');
+  await expect(page.locator('.inventory_item')).toHaveCount(6);
 });
 
 test('буруу нууц үгээр нэвтрэхэд алдаа харуулах', async ({ page }) => {
-  await page.goto('/');
-  await page.getByPlaceholder('Username').fill(USERNAME);
-  await page.getByPlaceholder('Password').fill('wrong_password');
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.goto(SITE_URL, { waitUntil: 'domcontentloaded' });
+  await page.locator('[data-test="username"]').fill(USERNAME);
+  await page.locator('[data-test="password"]').fill('wrong_password');
+  await page.locator('[data-test="login-button"]').click();
 
-  // data-test="error" элементийг testIdAttribute тохиргоогоор олно.
-  await expect(page.getByTestId('error')).toContainText(
+  const loginError = page.locator('[data-test="error"]');
+
+  // Зориуд буруу нууц үг өгсөн тул алдааны мэдэгдэл харагдах ёстой.
+  await expect(loginError).toBeVisible();
+  await expect(loginError).toContainText(
     'Username and password do not match'
   );
 
-  // Алдаатай нэвтрэлт inventory хуудас руу шилжүүлээгүйг шалгана.
-  await expect(page).toHaveURL('/');
-  await expect(page.getByPlaceholder('Username')).toBeVisible();
+  // Систем inventory хуудас руу оруулаагүйг батална.
+  await expect(page.locator('.inventory_list')).toHaveCount(0);
+  await expect(page.locator('[data-test="login-button"]')).toBeVisible();
 });
 
 test('нэвтэрсний дараа барааг сагсанд нэмэх', async ({ page }) => {
   await login(page);
 
-  // Тодорхой барааны test id-г ашиглан Add to cart товчийг сонгоно.
-  await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
+  // Нэрээр нь тухайн барааны card-ыг олж, түүний Add to cart товчийг дарна.
+  const backpack = page
+    .locator('.inventory_item')
+    .filter({ hasText: 'Sauce Labs Backpack' });
 
-  // Сагсны тэмдэглэгээ 1 болсон эсэхийг шалгана.
-  await expect(page.getByTestId('shopping-cart-badge')).toHaveText('1');
+  await expect(backpack).toHaveCount(1);
+  await backpack.getByRole('button', { name: 'Add to cart' }).click();
 
-  await page.getByTestId('shopping-cart-link').click();
+  // Cart badge 1 болсон эсэхийг шалгана.
+  await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
 
-  // Cart хуудас болон сонгосон бараа харагдаж буйг батална.
-  await expect(page.getByRole('heading', { name: 'Your Cart' })).toBeVisible();
+  await page.locator('.shopping_cart_link').click();
+
+  // Cart хуудсанд зөвхөн сонгосон бараа харагдаж байгааг батална.
+  await expect(page.locator('.title')).toHaveText('Your Cart');
   await expect(
-    page.getByText('Sauce Labs Backpack', { exact: true })
-  ).toBeVisible();
+    page.locator('.cart_item .inventory_item_name')
+  ).toHaveText('Sauce Labs Backpack');
 });
