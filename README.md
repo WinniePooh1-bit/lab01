@@ -142,3 +142,8 @@ Trace Viewer дээр Actions, Call log, DOM snapshot болон алдаа га
 ## Git commit-ийн бүтэц
 
 Repository-ийн commit history нь тохиргоо, эхний тестүүд, засвар, тайлан болон CI шалгалтын өөрчлөлтийг тус тусад нь харуулна.
+
+
+## GitHub Actions-ийн бодит шалгалт — 2026-11-25
+
+GitHub Actions-ийн Ubuntu + Chromium орчинд `npx playwright test` командыг ажиллуулахад **3 тест Passed, 0 Failed** үр дүн гарсан. Нийт хугацаа 5.0 секунд. Үр дүнг [GitHub Actions run #45620819194](https://github.com/WinniePooh1-bit/lab01/actions/runs/45620819194) дээр шалгаж болно. Тухайн run-ийн `lab01-playwright-report-and-traces` artifact-д HTML report болон Playwright-ийн test-results (trace/screenshot/video байгаа тохиолдолд) хадгалагдсан. Энэ бол GitHub-ийн CI орчны бодит үр дүн бөгөөд оюутны Windows компьютер дээрх локал ажиллуулалтын screenshot биш.
