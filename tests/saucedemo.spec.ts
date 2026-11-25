@@ -46,8 +46,9 @@ async function logoutIfLoggedIn(page: Page): Promise<void> {
 
   await menuButton.click();
 
-  const logoutLink = page.getByRole('link', { name: 'Logout' });
-  await expect(logoutLink).toBeVisible({ timeout: 5_000 });
+  // SauceDemo-ийн logout холбоос тогтвортой id-тай; цэс нээгдсэний дараа харагдана.
+  const logoutLink = page.locator('#logout_sidebar_link');
+  await expect(logoutLink).toBeVisible({ timeout: 10_000 });
   await logoutLink.click();
 
   await expect(page.getByRole('button', { name: 'Login' })).toBeVisible({
