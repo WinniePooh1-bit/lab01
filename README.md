@@ -86,6 +86,10 @@ Selenium болон Playwright хоёулаа Apache 2.0 лицензтэй нэ
 
 Энэ хувилбарт login-ийн баталгаажуулалтыг inventory жагсаалт ба login error-ийн аль нэг гарахыг шалгахаар өөрчилж, алдааны мессежийг шууд харуулдаг болгосон. Cart-ийн сонголтыг бүтээгдэхүүний card-аар хязгаарлаж, Logout cleanup-д SauceDemo-ийн menu/logout selector ашигласан. **Эдгээр засварыг GitHub-д хадгалсан боловч шинэ хувилбарын тестийг өөрийн компьютерт дахин ажиллуулж баталгаажуулах хүртэл Passed гэж тэмдэглэхгүй.**
 
+## Автомат шалгалт (GitHub Actions)
+
+GitHub Actions нь Ubuntu орчинд Node.js 22 болон Chromium суулгаж, `npm install`, `npx playwright install --with-deps chromium`, `npx playwright test` командыг ажиллуулна. Ажиллагаа бүрийн HTML report, screenshot, video болон trace файлыг Actions-ийн **Artifacts** хэсэгт `lab01-playwright-report-and-traces` нэрээр хадгална. Энэ нь локал орчны бодит screenshot-ийг орлохгүй; зөвхөн CI орчинд ажилласан тестийн нотолгоо юм.
+
 ## Нотолгоо
 
 Өөрийн компьютер дээр дараах бодит нотолгоог `evidence/` хавтаст нэмнэ:
@@ -123,3 +127,18 @@ Repository: https://github.com/WinniePooh1-bit/lab01
 ## Дараагийн туршилтын update — 2026-11-20
 
 Оюутан засварын дараа тестүүд хэвийн болсон гэж мэдээлсэн. Ирүүлсэн Chrome screenshot-д `saucedemo.com/inventory.html` хуудас, `Products` гарчиг болон бүтээгдэхүүний картууд харагдаж байна. Энэ нь амжилттай login-ийн дараах UI нээгдсэнийг харуулна. Харин screenshot-д HTML report-ийн Passed/Failed summary байхгүй тул шинэ run-ийн яг тоон үр дүнг энд зохиомлоор бичээгүй. Өмнөх 1 Passed / 2 Failed гэдэг нь эхний run-ийн үр дүн хэвээр үлдэнэ.
+
+
+## Trace Viewer дээр алдааг зориудаар ажиглах
+
+Үндсэн тестийн кодыг эвдэхгүйгээр тусдаа түр туршилт хийж болно. Эхлээд тестийн нэг assertion-ийг түр хугацаанд санаатай буруу утгатай болгож, `npx playwright test --trace on` ажиллуулна. Тест унасны дараа:
+
+```bash
+npx playwright show-trace test-results/<test-folder>/trace.zip
+```
+
+Trace Viewer дээр Actions, Call log, DOM snapshot болон алдаа гарсан алхмыг ажигла. Дараа нь assertion-ийг анхны зөв утгад нь буцааж, `npx playwright test` дахин ажиллуул. Санаатайгаар унагасан хувилбарыг үндсэн `main` branch-д үлдээхгүй.
+
+## Git commit-ийн бүтэц
+
+Repository-ийн commit history нь тохиргоо, эхний тестүүд, засвар, тайлан болон CI шалгалтын өөрчлөлтийг тус тусад нь харуулна.
